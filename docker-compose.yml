@@ -1,0 +1,29 @@
+version: "3"
+services:
+  streamlit_service:
+    container_name: streamlit_service
+    image: 'nokorinotsubasa/streamlit_mlops'
+    ports:
+      - "8501:8501"
+    volumes:
+      - "./src:/usr/src/app/src"
+
+  redis_service:
+    container_name: redis_service
+    image: 'redis:latest'
+    command: ["redis-server", "--bind", "redis", "--port", "6379"]
+    hostname: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - REDIS_PASSWORD=password
+      - REDIS_HOST=redis_service
+      - REDIS_PORT=6379
+    volumes:
+      - 'redis-data:/var/lib/redis'
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+volumes:
+  redis-data:
